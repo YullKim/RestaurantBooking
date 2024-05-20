@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "BookingScheduler.cpp"
+#include "TestableSmsSender.cpp"
 using namespace std;
 
 class BookingItem : public testing::Test {
@@ -31,7 +32,6 @@ public:
 
 	BookingScheduler bookingSceduler{ CAPACITY_PER_HOUR };
 };
-
 
 
 TEST_F(BookingItem, ReservationAvailableOnlyOnTimeNotAvailableIfNotOnTime) {
@@ -94,10 +94,20 @@ TEST_F(BookingItem, DISABLED_ReservationHasCapacitySuccessReservationIfDifferent
 }
 
 
-//TEST(BookingSchedulerTest, 시간대별_인원제한이_있다_같은_시간대가_다르면_Capacity_차있어도_스케쥴_추가_성공) {
-//
-//}
-//
+TEST_F(BookingItem, ReservationSendSMSIfSuccessReservation) {
+	//arrage
+	TestableSmsSender testableSmsSender;
+	Schedule* schedule = new Schedule{ ON_THE_HOUR, CAPACITY_PER_HOUR, CUSTOMER };
+	bookingSceduler.setSmsSender(&testableSmsSender);
+
+	//act
+	bookingSceduler.addSchedule(schedule);
+
+	//assert
+	EXPECT_EQ(true, testableSmsSender.isSendMethodIsCalled());
+}
+
+
 //TEST(BookingSchedulerTest, 예약완료시_SMS는_무조건_발송) {
 //
 //}
