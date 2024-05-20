@@ -2,6 +2,7 @@
 #include "gmock/gmock.h"
 #include "BookingScheduler.cpp"
 #include "TestableSmsSender.cpp"
+#include "TestableMailSender.cpp"
 using namespace std;
 
 class BookingItem : public testing::Test {
@@ -110,10 +111,20 @@ TEST_F(BookingItem, ReservationSendSMSIfSuccessReservation) {
 }
 
 
-//TEST(BookingSchedulerTest, 예약완료시_SMS는_무조건_발송) {
-//
-//}
-//
+TEST_F(BookingItem, ReservationNotSendMailIfDoNotHaveCustomerMail) {
+	//arrage
+	Customer customerWithMail{"Fake Name", "010-1234-5678", "test@test.com"};
+	TestableMailSender testableMailSender;
+	Schedule* schedule = new Schedule{ ON_THE_HOUR, CAPACITY_PER_HOUR, customerWithMail };
+	bookingSceduler.setMailSender(&testableMailSender);
+
+	//act
+	bookingSceduler.addSchedule(schedule);
+
+	//assert
+	EXPECT_EQ(1, testableSmsSender.isSendMethodIsCalled());
+}
+
 //TEST(BookingSchedulerTest, 이메일이_없는_경우에는_이메일_미발송) {
 //
 //}
