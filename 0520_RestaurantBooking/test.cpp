@@ -11,7 +11,8 @@ protected:
 		NOT_ON_THE_HOUR = getTime(2021, 3, 26, 9, 5);
 		ON_THE_HOUR = getTime(2021, 3, 26, 9, 0);
 
-		bookingSceduler.setSmsSender(&testableSmsSender);
+		bookingScheduler.setSmsSender(&testableSmsSender);
+		bookingScheduler.setMailSender(&testableMailSender);
 	}
 public:
 	tm getTime(int year, int mon, int day, int hour, int min) {
@@ -30,11 +31,13 @@ public:
 	tm NOT_ON_THE_HOUR;
 	tm ON_THE_HOUR;
 	Customer CUSTOMER{ "Fake name","010-1234-5678" };
+	Customer customerWithMail{ "Fake Name", "010-1234-5678", "test@test.com" };
 	const int UNDER_CAPACITY = 1;
 	const int CAPACITY_PER_HOUR = 3;
 
-	BookingScheduler bookingSceduler{ CAPACITY_PER_HOUR };
+	BookingScheduler bookingScheduler{ CAPACITY_PER_HOUR };
 	TestableSmsSender testableSmsSender;
+	TestableMailSender testableMailSender;
 };
 
 
@@ -43,7 +46,7 @@ TEST_F(BookingItem, ReservationAvailableOnlyOnTimeNotAvailableIfNotOnTime) {
 	Schedule* schedule = new Schedule{ NOT_ON_THE_HOUR, UNDER_CAPACITY, CUSTOMER };
 	
 	//act
-	EXPECT_THROW(bookingSceduler.addSchedule(schedule), std::runtime_error);
+	EXPECT_THROW(bookingScheduler.addSchedule(schedule), std::runtime_error);
 
 	//assert
 	//expected runtime exception
@@ -54,21 +57,21 @@ TEST_F(BookingItem, ReservationAvailableOnlyOnTimeAvailableIfOnTime) {
 	Schedule* schedule = new Schedule{ ON_THE_HOUR, UNDER_CAPACITY, CUSTOMER };
 
 	//act
-	bookingSceduler.addSchedule(schedule);
+	bookingScheduler.addSchedule(schedule);
 
 	//assert
-	EXPECT_EQ(true, bookingSceduler.hasSchedule(schedule));
+	EXPECT_EQ(true, bookingScheduler.hasSchedule(schedule));
 }
 
 TEST_F(BookingItem, ReservationHasCapacityOccurExceptionIfOverCapacityAtTheSameTime) {
 	//arrage
 	Schedule* schedule = new Schedule{ ON_THE_HOUR, CAPACITY_PER_HOUR, CUSTOMER };
-	bookingSceduler.addSchedule(schedule);
+	bookingScheduler.addSchedule(schedule);
 
 	//act
 	try {
 		Schedule* newschedule = new Schedule{ ON_THE_HOUR, UNDER_CAPACITY, CUSTOMER };
-		bookingSceduler.addSchedule(newschedule);
+		bookingScheduler.addSchedule(newschedule);
 		FAIL();
 	}
 	catch (std::runtime_error& e) {
@@ -80,7 +83,7 @@ TEST_F(BookingItem, ReservationHasCapacityOccurExceptionIfOverCapacityAtTheSameT
 TEST_F(BookingItem, DISABLED_ReservationHasCapacitySuccessReservationIfDifferentTime) {
 	//arrage
 	Schedule* schedule = new Schedule{ ON_THE_HOUR, CAPACITY_PER_HOUR, CUSTOMER };
-	bookingSceduler.addSchedule(schedule);
+	bookingScheduler.addSchedule(schedule);
 
 	//act
 	//tm differentHour = ON_THE_HOUR;
@@ -90,21 +93,21 @@ TEST_F(BookingItem, DISABLED_ReservationHasCapacitySuccessReservationIfDifferent
 	tm differentHour = plusHour(ON_THE_HOUR, 1);
 	mktime(&differentHour);
 	Schedule* newSchedule = new Schedule{ differentHour, UNDER_CAPACITY, CUSTOMER };
-	bookingSceduler.addSchedule(newSchedule);
+	bookingScheduler.addSchedule(newSchedule);
 
 	//assert
-	EXPECT_EQ(true, bookingSceduler.hasSchedule(schedule));
-	EXPECT_EQ(true, bookingSceduler.hasSchedule(newSchedule));
+	EXPECT_EQ(true, bookingScheduler.hasSchedule(schedule));
+	EXPECT_EQ(true, bookingScheduler.hasSchedule(newSchedule));
 }
 
 
 TEST_F(BookingItem, ReservationSendSMSIfSuccessReservation) {
 	//arrage
 	Schedule* schedule = new Schedule{ ON_THE_HOUR, CAPACITY_PER_HOUR, CUSTOMER };
-	bookingSceduler.setSmsSender(&testableSmsSender);
+	bookingScheduler.setSmsSender(&testableSmsSender);
 
 	//act
-	bookingSceduler.addSchedule(schedule);
+	bookingScheduler.addSchedule(schedule);
 
 	//assert
 	EXPECT_EQ(true, testableSmsSender.isSendMethodIsCalled());
@@ -113,13 +116,13 @@ TEST_F(BookingItem, ReservationSendSMSIfSuccessReservation) {
 
 TEST_F(BookingItem, ReservationNotSendMailIfDoNotHaveCustomerMail) {
 	//arrage
-	Customer customerWithMail{"Fake Name", "010-1234-5678", "test@test.com"};
-	TestableMailSender testableMailSender;
+	
+	//TestableMailSender testableMailSender;
 	Schedule* schedule = new Schedule{ ON_THE_HOUR, CAPACITY_PER_HOUR, customerWithMail };
-	bookingSceduler.setMailSender(&testableMailSender);
+	//bookingScheduler.setMailSender(&testableMailSender);
 
 	//act
-	bookingSceduler.addSchedule(schedule);
+	bookingScheduler.addSchedule(schedule);
 
 	//assert
 	EXPECT_EQ(1, testableSmsSender.isSendMethodIsCalled());
