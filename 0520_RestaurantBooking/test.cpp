@@ -1,8 +1,11 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "BookingScheduler.cpp"
+using namespace std;
+using  std::time_t;
+using  std::time;
 
-TEST(BookingSchedulerTest, ReservationAvailableOnlyOnTime) {
+TEST(BookingSchedulerTest, ReservationAvailableOnlyOnTimeNotAvailableIfNotOnTime) {
 	//arrage
 	tm notOnTheHour = {0};
 	notOnTheHour.tm_year = 2021 - 1900;
@@ -22,8 +25,30 @@ TEST(BookingSchedulerTest, ReservationAvailableOnlyOnTime) {
 
 	//assert
 	//expected runtime exception
-
 }
+
+TEST(BookingSchedulerTest, ReservationAvailableOnlyOnTimeAvailableIfOnTime) {
+	//arrage
+	tm OnTheHour = { 0 };
+	OnTheHour.tm_year = 2021 - 1900;
+	OnTheHour.tm_mon = 03 - 1;
+	OnTheHour.tm_mday = 26;
+	OnTheHour.tm_hour = 9;
+	OnTheHour.tm_min = 0;
+	OnTheHour.tm_isdst = 01;
+	mktime(&OnTheHour);
+
+	Customer customer{ "Fake name","010-1234-5678" };
+	Schedule* schedule = new Schedule{ OnTheHour, 1, customer };
+	BookingScheduler bookingSceduler{ 3 };
+
+	//act
+	bookingSceduler.addSchedule(schedule);
+
+	//assert
+	EXPECT_EQ(true, bookingSceduler.hasSchedule(schedule));
+}
+
 
 
 //TEST(BookingSchedulerTest, 예약은_정시에만_가능하다_정시가_아닌경우_예약불가) {
