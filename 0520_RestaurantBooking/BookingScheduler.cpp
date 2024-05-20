@@ -5,9 +5,11 @@
 #include "Schedule.cpp"
 #include "MailSender.cpp"
 #include "SmsSender.cpp"
+#include <iostream>
 
 using std::vector;
 
+using namespace std;
 class BookingScheduler {
 public:
     BookingScheduler(int capacityPerHour) :
@@ -30,6 +32,8 @@ public:
                 numberOfPeople += bookedSchedule->getNumberOfPeople();
             }
         }
+        cout << "time : " << schedule->getDateTime().tm_hour <<endl;
+        cout << "numofpeo : " << numberOfPeople << endl;
         if (numberOfPeople > capacityPerHour) {
             throw std::runtime_error("Number of people is over restaurant capacity per hour");
         }

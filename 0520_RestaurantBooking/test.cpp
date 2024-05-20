@@ -16,6 +16,13 @@ public:
 		return result;
 	}
 
+	tm plusHour(tm base, int hour) {
+		base.tm_hour += hour;
+		mktime(&base);
+		return base;
+	}
+
+
 	tm NOT_ON_THE_HOUR;
 	tm ON_THE_HOUR;
 	Customer CUSTOMER{ "Fake name","010-1234-5678" };
@@ -49,7 +56,7 @@ TEST_F(BookingItem, ReservationAvailableOnlyOnTimeAvailableIfOnTime) {
 	EXPECT_EQ(true, bookingSceduler.hasSchedule(schedule));
 }
 
-TEST_F(BookingItem, ReservationHasCapacityOccurExceptionIfOverCapacity) {
+TEST_F(BookingItem, ReservationHasCapacityOccurExceptionIfOverCapacityAtTheSameTime) {
 	//arrage
 	Schedule* schedule = new Schedule{ ON_THE_HOUR, CAPACITY_PER_HOUR, CUSTOMER };
 	bookingSceduler.addSchedule(schedule);
@@ -66,10 +73,26 @@ TEST_F(BookingItem, ReservationHasCapacityOccurExceptionIfOverCapacity) {
 	}
 }
 
-//
-//TEST(BookingSchedulerTest, 시간대별_인원제한이_있다_같은_시간대에_Capacity_초과할_경우_예외발생) {
-//
-//}
+TEST_F(BookingItem, DISABLED_ReservationHasCapacitySuccessReservationIfDifferentTime) {
+	//arrage
+	Schedule* schedule = new Schedule{ ON_THE_HOUR, CAPACITY_PER_HOUR, CUSTOMER };
+	bookingSceduler.addSchedule(schedule);
+
+	//act
+	//tm differentHour = ON_THE_HOUR;
+	//differentHour.tm_hour += 1;
+	//cout << differentHour.tm_hour << endl;
+
+	tm differentHour = plusHour(ON_THE_HOUR, 1);
+	mktime(&differentHour);
+	Schedule* newSchedule = new Schedule{ differentHour, UNDER_CAPACITY, CUSTOMER };
+	bookingSceduler.addSchedule(newSchedule);
+
+	//assert
+	EXPECT_EQ(true, bookingSceduler.hasSchedule(schedule));
+	EXPECT_EQ(true, bookingSceduler.hasSchedule(newSchedule));
+}
+
 
 //TEST(BookingSchedulerTest, 시간대별_인원제한이_있다_같은_시간대가_다르면_Capacity_차있어도_스케쥴_추가_성공) {
 //
