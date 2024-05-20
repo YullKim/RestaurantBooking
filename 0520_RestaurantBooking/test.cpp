@@ -49,20 +49,28 @@ TEST_F(BookingItem, ReservationAvailableOnlyOnTimeAvailableIfOnTime) {
 	EXPECT_EQ(true, bookingSceduler.hasSchedule(schedule));
 }
 
+TEST_F(BookingItem, ReservationHasCapacityOccurExceptionIfOverCapacity) {
+	//arrage
+	Schedule* schedule = new Schedule{ ON_THE_HOUR, CAPACITY_PER_HOUR, CUSTOMER };
+	bookingSceduler.addSchedule(schedule);
 
+	//act
+	try {
+		Schedule* newschedule = new Schedule{ ON_THE_HOUR, UNDER_CAPACITY, CUSTOMER };
+		bookingSceduler.addSchedule(newschedule);
+		FAIL();
+	}
+	catch (std::runtime_error& e) {
+		//assert
+		EXPECT_EQ(string{ e.what() }, string{"Number of people is over restaurant capacity per hour"});
+	}
+}
 
-//TEST(BookingSchedulerTest, 예약은_정시에만_가능하다_정시가_아닌경우_예약불가) {
-//
-//}
-
-//TEST(BookingSchedulerTest, 예약은_정시에만_가능하다_정시인_경우_예약가능) {
-//
-//}
 //
 //TEST(BookingSchedulerTest, 시간대별_인원제한이_있다_같은_시간대에_Capacity_초과할_경우_예외발생) {
 //
 //}
-//
+
 //TEST(BookingSchedulerTest, 시간대별_인원제한이_있다_같은_시간대가_다르면_Capacity_차있어도_스케쥴_추가_성공) {
 //
 //}
