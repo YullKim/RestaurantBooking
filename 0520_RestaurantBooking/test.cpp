@@ -16,7 +16,7 @@ protected:
 	}
 public:
 	tm getTime(int year, int mon, int day, int hour, int min) {
-		tm result = { 0 , min, hour, day, mon - 1, year - 1990, 0,0, -1 };
+		tm result = { 0 , min, hour, day, mon - 1, year - 1900, 0,0, -1 };
 		mktime(&result);
 		return result;
 	}
@@ -31,7 +31,7 @@ public:
 	tm NOT_ON_THE_HOUR;
 	tm ON_THE_HOUR;
 	Customer CUSTOMER{ "Fake name","010-1234-5678" };
-	Customer customerWithMail{ "Fake Name", "010-1234-5678", "test@test.com" };
+	Customer CUSTOMER_WITH_MAIL{ "Fake Name", "010-1234-5678", "test@test.com" };
 	const int UNDER_CAPACITY = 1;
 	const int CAPACITY_PER_HOUR = 3;
 
@@ -80,7 +80,7 @@ TEST_F(BookingItem, ReservationHasCapacityOccurExceptionIfOverCapacityAtTheSameT
 	}
 }
 
-TEST_F(BookingItem, DISABLED_ReservationHasCapacitySuccessReservationIfDifferentTime) {
+TEST_F(BookingItem, ReservationHasCapacitySuccessReservationIfDifferentTime) {
 	//arrage
 	Schedule* schedule = new Schedule{ ON_THE_HOUR, CAPACITY_PER_HOUR, CUSTOMER };
 	bookingScheduler.addSchedule(schedule);
@@ -116,16 +116,24 @@ TEST_F(BookingItem, ReservationSendSMSIfSuccessReservation) {
 
 TEST_F(BookingItem, ReservationNotSendMailIfDoNotHaveCustomerMail) {
 	//arrage
-	
-	//TestableMailSender testableMailSender;
-	Schedule* schedule = new Schedule{ ON_THE_HOUR, CAPACITY_PER_HOUR, customerWithMail };
-	//bookingScheduler.setMailSender(&testableMailSender);
+	Schedule* schedule = new Schedule{ ON_THE_HOUR, CAPACITY_PER_HOUR, CUSTOMER };
 
 	//act
 	bookingScheduler.addSchedule(schedule);
 
 	//assert
-	EXPECT_EQ(1, testableSmsSender.isSendMethodIsCalled());
+	EXPECT_EQ(0, testableMailSender.getCountSendMailMethodIsCalled());
+}
+
+TEST_F(BookingItem, ReservationSendMailIfHaveCustomerMail) {
+	//arrage
+	Schedule* schedule = new Schedule{ ON_THE_HOUR, CAPACITY_PER_HOUR, CUSTOMER_WITH_MAIL };
+
+	//act
+	bookingScheduler.addSchedule(schedule);
+
+	//assert
+	EXPECT_EQ(1, testableMailSender.getCountSendMailMethodIsCalled());
 }
 
 //TEST(BookingSchedulerTest, 이메일이_없는_경우에는_이메일_미발송) {

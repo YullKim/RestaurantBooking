@@ -1,0 +1,26 @@
+#pragma once
+#include <vector>
+#include <stdexcept>
+#include <algorithm>
+#include "BookingScheduler.cpp"
+#include <iostream>
+
+using std::vector;
+
+using namespace std;
+class MondayBookingScheduler : public BookingScheduler {
+public:
+    MondayBookingScheduler(int capacityPerHour) :
+        BookingScheduler{ capacityPerHour } {
+    }
+
+    time_t getNow() override
+    {
+        return getTime(2024, 6, 3, 17, 0);
+    }
+private:
+    time_t getTime(int year, int mon, int day, int hour, int min) {
+        tm result = { 0 , min, hour, day, mon - 1, year - 1900, 0,0, -1 };
+        return mktime(&result);
+    }
+};
