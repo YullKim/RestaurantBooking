@@ -2,20 +2,32 @@
 #include "gmock/gmock.h"
 #include "BookingScheduler.cpp"
 using namespace std;
-using  std::time_t;
-using  std::time;
 
-TEST(BookingSchedulerTest, ReservationAvailableOnlyOnTimeNotAvailableIfNotOnTime) {
+class BookingItem : public testing::Test {
+protected:
+	void SetUp() override {
+		notOnTheHour = getTime(2021, 3, 26, 9, 5);
+		onTheHour = getTime(2021, 3, 26, 9, 0);
+	}
+public:
+	tm getTime(int year, int mon, int day, int hour, int min) {
+		tm result = { 0 , min, hour, day, mon - 1, year - 1990, 0,0, -1 };
+		mktime(&result);
+		return result;
+	}
+
+	tm NOT_ON_THE_HOUR;
+	tm ON_THE_HOUR;
+	Customer CUSTOMER{ "Fake name","010-1234-5678" };
+	const int UNDER_CAPACITY = 1;
+	const int CAPACITY_PER_HOUR = 3;
+};
+
+
+
+TEST_F(BookingItem, ReservationAvailableOnlyOnTimeNotAvailableIfNotOnTime) {
 	//arrage
-	tm notOnTheHour = {0};
-	notOnTheHour.tm_year = 2021 - 1900;
-	notOnTheHour.tm_mon = 03 - 1;
-	notOnTheHour.tm_mday = 26;
-	notOnTheHour.tm_hour = 9;
-	notOnTheHour.tm_min = 5;
-	notOnTheHour.tm_isdst = 01;
-	mktime(&notOnTheHour);
-
+	tm notOnTheHour = getTime(2021, 3, 26, 9, 5);
 	Customer customer{ "Fake name","010-1234-5678" };
 	Schedule* schedule = new Schedule{ notOnTheHour, 1, customer };
 	BookingScheduler bookingSceduler{ 3 };
@@ -27,19 +39,12 @@ TEST(BookingSchedulerTest, ReservationAvailableOnlyOnTimeNotAvailableIfNotOnTime
 	//expected runtime exception
 }
 
-TEST(BookingSchedulerTest, ReservationAvailableOnlyOnTimeAvailableIfOnTime) {
+TEST_F(BookingItem, ReservationAvailableOnlyOnTimeAvailableIfOnTime) {
 	//arrage
-	tm OnTheHour = { 0 };
-	OnTheHour.tm_year = 2021 - 1900;
-	OnTheHour.tm_mon = 03 - 1;
-	OnTheHour.tm_mday = 26;
-	OnTheHour.tm_hour = 9;
-	OnTheHour.tm_min = 0;
-	OnTheHour.tm_isdst = 01;
-	mktime(&OnTheHour);
+	tm onTheHour = getTime(2021, 3, 26, 9, 0);
 
 	Customer customer{ "Fake name","010-1234-5678" };
-	Schedule* schedule = new Schedule{ OnTheHour, 1, customer };
+	Schedule* schedule = new Schedule{ onTheHour, 1, customer };
 	BookingScheduler bookingSceduler{ 3 };
 
 	//act
