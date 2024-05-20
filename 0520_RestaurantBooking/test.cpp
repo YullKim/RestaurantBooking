@@ -6,8 +6,8 @@ using namespace std;
 class BookingItem : public testing::Test {
 protected:
 	void SetUp() override {
-		notOnTheHour = getTime(2021, 3, 26, 9, 5);
-		onTheHour = getTime(2021, 3, 26, 9, 0);
+		NOT_ON_THE_HOUR = getTime(2021, 3, 26, 9, 5);
+		ON_THE_HOUR = getTime(2021, 3, 26, 9, 0);
 	}
 public:
 	tm getTime(int year, int mon, int day, int hour, int min) {
@@ -21,17 +21,16 @@ public:
 	Customer CUSTOMER{ "Fake name","010-1234-5678" };
 	const int UNDER_CAPACITY = 1;
 	const int CAPACITY_PER_HOUR = 3;
+
+	BookingScheduler bookingSceduler{ CAPACITY_PER_HOUR };
 };
 
 
 
 TEST_F(BookingItem, ReservationAvailableOnlyOnTimeNotAvailableIfNotOnTime) {
 	//arrage
-	tm notOnTheHour = getTime(2021, 3, 26, 9, 5);
-	Customer customer{ "Fake name","010-1234-5678" };
-	Schedule* schedule = new Schedule{ notOnTheHour, 1, customer };
-	BookingScheduler bookingSceduler{ 3 };
-
+	Schedule* schedule = new Schedule{ NOT_ON_THE_HOUR, UNDER_CAPACITY, CUSTOMER };
+	
 	//act
 	EXPECT_THROW(bookingSceduler.addSchedule(schedule), std::runtime_error);
 
@@ -41,11 +40,7 @@ TEST_F(BookingItem, ReservationAvailableOnlyOnTimeNotAvailableIfNotOnTime) {
 
 TEST_F(BookingItem, ReservationAvailableOnlyOnTimeAvailableIfOnTime) {
 	//arrage
-	tm onTheHour = getTime(2021, 3, 26, 9, 0);
-
-	Customer customer{ "Fake name","010-1234-5678" };
-	Schedule* schedule = new Schedule{ onTheHour, 1, customer };
-	BookingScheduler bookingSceduler{ 3 };
+	Schedule* schedule = new Schedule{ ON_THE_HOUR, UNDER_CAPACITY, CUSTOMER };
 
 	//act
 	bookingSceduler.addSchedule(schedule);
