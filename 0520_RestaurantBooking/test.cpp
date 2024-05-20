@@ -9,6 +9,8 @@ protected:
 	void SetUp() override {
 		NOT_ON_THE_HOUR = getTime(2021, 3, 26, 9, 5);
 		ON_THE_HOUR = getTime(2021, 3, 26, 9, 0);
+
+		bookingSceduler.setSmsSender(&testableSmsSender);
 	}
 public:
 	tm getTime(int year, int mon, int day, int hour, int min) {
@@ -31,6 +33,7 @@ public:
 	const int CAPACITY_PER_HOUR = 3;
 
 	BookingScheduler bookingSceduler{ CAPACITY_PER_HOUR };
+	TestableSmsSender testableSmsSender;
 };
 
 
@@ -96,7 +99,6 @@ TEST_F(BookingItem, DISABLED_ReservationHasCapacitySuccessReservationIfDifferent
 
 TEST_F(BookingItem, ReservationSendSMSIfSuccessReservation) {
 	//arrage
-	TestableSmsSender testableSmsSender;
 	Schedule* schedule = new Schedule{ ON_THE_HOUR, CAPACITY_PER_HOUR, CUSTOMER };
 	bookingSceduler.setSmsSender(&testableSmsSender);
 
