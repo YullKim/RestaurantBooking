@@ -1,11 +1,20 @@
-#include "gtest/gtest.h"
+﻿#include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "BookingScheduler.cpp"
+#include "TestableBookingScheduler.cpp"
 #include "TestableSmsSender.cpp"
 #include "TestableMailSender.cpp"
 #include "SundayBookingScheduler.cpp"
 #include "MondayBookingScheduler.cpp"
 using namespace std;
+
+//class MockBookingScheduler : public TestableBookingScheduler {
+//public:
+//	//MOCK_METHOD(int, abc, (int), ());
+//	//MOCK_METHOD(int, getSum, (int a, int b), (override));
+//	//MOCK_METHOD(int, getValue, (), ());
+//	MOCK_METHOD(int, getValue, (), ());
+//};
 
 class BookingItem : public testing::Test {
 protected:
@@ -170,7 +179,7 @@ TEST_F(BookingItem, ReservationAvailableIfTodayIsNotSumday) {
 //TEST(BookingSchedulerTest, 현재날짜가_일요일인_경우_예약불가_예외처리) {
 //
 //}
-//
+////
 //TEST(BookingSchedulerTest, 현재날짜가_일요일이_아닌경우_예약가능) {
 //
 //}
